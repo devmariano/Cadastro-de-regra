@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro de Regra de Pré-crítica com Grupos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f1f4f7;
+      color: #071437;
+    }
+    
+    .modal-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1055;
+      width: 100%;
+      height: 100%;
+      overflow: hidden auto;
+      outline: none;
+    }
+    
+    .modal-dialog {
+      max-width: 1140px;
+      margin: 1.75rem auto;
+      display: flex;
+      align-items: center;
+      min-height: calc(100% - 3.5rem);
+    }
+    
+    .modal-content {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      pointer-events: auto;
+      background-color: #ffffff;
+      border-radius: 0.475rem;
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+      outline: none;
+    }
+    
+    .modal-header {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.75rem;
+      border-bottom: 1px solid #f1f1f2;
+      border-top-left-radius: 0.475rem;
+      border-top-right-radius: 0.475rem;
+    }
+    
+    .modal-title {
+      width: 100%;
+      font-size: 1.5rem;
+      color: #3e97ff;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.5;
+      margin: 0;
+    }
+    
+    .modal-body {
+      position: relative;
+      flex: 1 1 auto;
+      padding: 1.75rem;
+      overflow-y: auto;
+    }
+    
+    .form-label {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #252f4a;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+    }
+    
+    .form-control, .form-select {
+      background-color: #f1f4f7;
+      min-height: 2.675rem;
+      padding: 0.55rem 0.95rem;
+      font-size: 0.95rem;
+      border-radius: 0.425rem;
+      display: block;
+      width: 100%;
+      font-weight: 500;
+      line-height: 1.5;
+      border: 1px solid #dbdfe9;
+      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: #3e97ff;
+      box-shadow: 0 0 0 0.25rem rgba(62, 151, 255, 0.25);
+      outline: 0;
+    }
+    
+    .btn {
+      font-weight: 600;
+      padding: 0.55rem 1.25rem;
+      font-size: 0.95rem;
+      border-radius: 0.425rem;
+      line-height: 1.5;
+      text-align: center;
+      vertical-align: middle;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, 
+                border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    .btn-primary {
+      color: #fff;
+      background-color: #3e97ff;
+      border-color: #3e97ff;
+    }
+    
+    .btn-primary:hover {
+      background-color: #3288e8;
+      border-color: #2d7fd8;
+    }
+    
+    .btn-outline-primary {
+      color: #3e97ff;
+      border: 1px solid #3e97ff;
+      background-color: transparent;
+    }
+    
+    .btn-outline-primary:hover {
+      color: #fff;
+      background-color: #3e97ff;
+      border-color: #3e97ff;
+    }
+    
+    .btn-success {
+      color: #fff;
+      background-color: #50cd89;
+      border-color: #50cd89;
+    }
+    
+    .btn-success:hover {
+      background-color: #6ad59b;
+      border-color: #62d295;
+    }
+
+    .btn-outline-success {
+      color: #50cd89;
+      border: 1px solid #50cd89;
+      background-color: transparent;
+    }
+    
+    .btn-outline-success:hover {
+      color: #6ad59b;
+      border: 1px solid #6ad59b;
+      background-color: transparent;
+    }
+    
+    .btn-danger {
+      color: #fff;
+      background-color: #f1416c;
+      border-color: #f1416c;
+    }
+    
+    .btn-danger:hover {
+      background-color: #f2547c;
+      border-color: #f2547c;
+    }
+    
+    .btn-sm {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+      border-radius: 0.375rem;
+    }
+    
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .btn-icon i {
+      margin-right: 0.5rem;
+    }
+    
+    .grupo {
+      border: 1px solid #f1f1f2;
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .grupo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #f1f1f2;
+    }
+    
+    .grupo-titulo {
+      font-weight: 600;
+      color: #071437;
+      font-size: 1.125rem;
+    }
+
+    .regra-info {
+      font-weight: 300;
+      color: #071437;
+      font-size: 0.9rem;
+    }
+
+    .regra-titulo {
+      font-weight: 600;
+      color: #071437;
+      font-size: 1rem;
+    }
+    
+    .btn-remove {
+      color: #f1416c;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.25rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .btn-remove:hover {
+      color: #d92b56;
+    }
+    
+    .btn-remove i {
+      margin-right: 0.25rem;
+    }
+    
+    .regra {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    
+    .combobox-container {
+      flex: 1;
+      min-width: 180px;
+    }
+    
+    .combobox-label {
+      font-size: 0.8rem;
+      color: #4b5675;
+      margin-bottom: 0.25rem;
+      display: block;
+      font-weight: 500;
+    }
+    
+    .valor-container {
+      position: relative;
+      flex: 1;
+      min-width: 180px;
+    }
+    
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      word-wrap: break-word;
+      background-color: #fff;
+      background-clip: border-box;
+      border: 1px solid #f1f1f2;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 13px rgba(76, 87, 125, 0.02);
+      margin-bottom: 1.5rem;
+    }
+    
+    .card-body {
+      flex: 1 1 auto;
+      padding: 1.5rem;
+    }
+    
+    .preview-container {
+      background-color: #f9f9f9;
+      padding: 1.25rem;
+      border-radius: 0.5rem;
+      border: 1px solid #f1f1f2;
+      font-family: monospace;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.2rem;
+      height: 1.2rem;
+      border-radius: 50%;
+      background-color: #3e97ff;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+    
+    .tooltip-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.2rem;
+      height: 1.2rem;
+      border-radius: 50%;
+      background-color: #3e97ff;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+      cursor: pointer;
+    }
+    
+    .form-check {
+      margin-right: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    .form-check-input {
+      margin-right: 0.5rem;
+    }
+    
+    .form-check-label {
+      color: #071437;
+    }
+    
+    .modal-footer {
+      display: flex;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 1rem;
+      background-color: transparent;
+      border-top: 1px solid #f1f1f2;
+      border-bottom-right-radius: 0.475rem;
+      border-bottom-left-radius: 0.475rem;
+    }
+    
+    .footer-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      width: 100%;
+    }
+    
+    .footer-buttons > div {
+      flex: 0 0 auto;
+      width: 33.3333%;
+      padding-right: 0.75rem;
+      padding-left: 0.75rem;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 1.5rem;
+      color: #6c757d;
+      font-style: italic;
+      background-color: #f8f9fa;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+    }
+    
+    @media (max-width: 768px) {
+      .regra {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .combobox-container, .valor-container {
+        width: 100%;
+      }
+      
+      .footer-buttons > div {
+        width: 100%;
+        margin-bottom: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="modal-container">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cadastro de Regra de Pré-crítica</h5>
+      </div>
+      <div class="modal-body">
+        <form id="regra-form">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <label class="form-label">Nome da Regra</label>
+              <input type="text" class="form-control" placeholder="Ex: CPF Inválido">
+            </div>
+            
+            <div class="col-md-6">
+              <div class="mb-4">
+                <label class="form-label">Descrição</label>
+                <textarea class="form-control" rows="1" placeholder="Descreva o objetivo da regra..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Tipo alvo da regra</label>
+            <select class="form-select" id="entidade-alvo" onchange="atualizarCamposExibir()">
+              <option value="" selected disabled>Selecione</option>
+              <option value="Aluno">Aluno</option>
+              <option value="Turma">Turma</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Campos adicionais para exibir na listagem</label>
+            <span class="tooltip-icon" title="Alguns campos são pré-definidos de acordo com o o alvo da regra">i</span>
+            <div id="campos-exibir" class="empty-state">Selecione um tipo alvo primeiro</div>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <h6 class="mb-3 d-flex align-items-center">
+                <span class="regra-titulo">Condições da regra</span>
+              </h6>
+              <h6 class="mb-3 d-flex align-items-center">
+                <span class="regra-info">Você pode criar grupos de condições com operadores E/OU entre grupos e dentro de cada grupo</span>
+              </h6>
+              <div id="grupos-container">
+                <div class="empty-state" id="empty-grupos">Adicione seu primeiro grupo de condições</div>
+              </div>
+              <div class="mb-3" id="operador-global-container" style="display: none;">
+                <label class="form-label d-inline-block me-2">Operador entre grupos:</label>
+                <select id="operador-global" class="form-select w-auto d-inline-block">
+                  <option value="AND">E</option>
+                  <option value="OR">OU</option>
+                </select>
+              </div>
+              <button class="btn btn-success btn-icon" type="button" onclick="addGrupo()">
+                <i class="fas fa-layer-group"></i> Adicionar Grupo
+              </button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="mb-3 d-flex align-items-center justify-content-between w-100">
+                <div>
+                  <h6 class="mb-1">
+                    <span class="regra-titulo">Visualização da regra</span>
+                  </h6>
+                  <h6 class="mb-0">
+                    <span class="regra-info">Você pode validar visualmente a regra clicando em gerar regra</span>
+                  </h6>
+                </div>
+                <div>
+                  <button type="button" class="btn btn-outline-success" onclick="gerarPreview()">
+                    <i class="fas fa-eye me-2"></i>Gerar Regra
+                  </button>
+                </div>
+              </div>
+          
+              <div id="resultado" class="preview-container mt-3">Nenhuma condição adicionada ainda.</div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <div class="footer-buttons">
+          <div>
+            <button type="button" class="btn btn-outline-primary w-100">
+              Voltar
+            </button>
+          </div>
+          <div>
+            <button type="submit" class="btn btn-primary w-100">
+              Salvar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Definição dos campos com tipos e condições específicas
+  const camposPorEntidade = {
+    "Aluno": [
+      { 
+        label: "Nome do aluno", 
+        value: "nome", 
+        tipo: "texto",
+        condicoes: ["igual a", "diferente de", "contém", "não contém"],
+        condicoesSemValor: ["está vazio", "não está vazio", "abreviado"]
+      },
+      { 
+        label: "Filiação", 
+        value: "filiacao", 
+        tipo: "texto",
+        condicoes: ["igual a", "diferente de", "contém", "não contém"],
+        condicoesSemValor: ["está vazio", "não está vazio", "não válido"]
+      },
+      { 
+        label: "CPF", 
+        value: "cpf", 
+        tipo: "texto",
+        condicoes: ["igual a", "diferente de", "contém", "não contém"],
+        condicoesSemValor: ["está vazio", "não está vazio", "é válido", "não é válido"]
+      },
+      { 
+        label: "Idade", 
+        value: "idade", 
+        tipo: "número",
+        condicoes: ["igual a", "diferente de", "maior que", "menor que"],
+        condicoesSemValor: ["está vazio", "não está vazio"]
+      },
+      { 
+        label: "Escolaridade", 
+        value: "escolaridade", 
+        tipo: "combobox",
+        valores: ["ensino fundamental", "ensino médio", "ensino superior"],
+        condicoes: ["igual a", "diferente de"],
+        condicoesSemValor: ["está vazio", "não está vazio"]
+      },
+      { 
+        label: "Matrícula", 
+        value: "matricula", 
+        tipo: "combobox",
+        valores: ["ativa", "inativa", "concluída", "evadida", "trancada"],
+        condicoes: ["igual a", "diferente de"],
+        condicoesSemValor: ["está vazio", "não está vazio"]
+      }
+    ],
+    "Turma": [
+      { 
+        label: "Nome da turma", 
+        value: "nome_turma", 
+        tipo: "texto",
+        condicoes: ["igual a", "diferente de", "contém", "não contém"],
+        condicoesSemValor: ["está vazio", "não está vazio"]
+      },
+      { 
+        label: "Tipo de curso", 
+        value: "tipo_curso", 
+        tipo: "combobox",
+        valores: ["formação inicial", "formação continuada", "curso técnico", "graduação"],
+        condicoes: ["igual a", "diferente de"],
+        condicoesSemValor: ["está vazio", "não está vazio"]
+      },
+      { 
+        label: "Modalidade", 
+        value: "modalidade", 
+        tipo: "combobox",
+        valores: ["Qualificação", "Aperfeiçoamento", "Especialização", "Aprendizagem industrial", "Técnico"],
+        condicoes: ["igual a", "diferente de"],
+        condicoesSemValor: ["está vazio", "não está vazio"]
+      },
+      { 
+        label: "Estratégia", 
+        value: "estrategia", 
+        tipo: "combobox",
+        valores: ["EAD", "EAD autoinstrucional", "Semi presencial", "Presencial"],
+        condicoes: ["igual a", "diferente de"],
+        condicoesSemValor: ["está vazio", "não está vazio"]
+      },
+      { 
+        label: "Escolaridade mínima", 
+        value: "escolaridade_minima", 
+        tipo: "combobox",
+        valores: ["ensino fundamental", "ensino médio", "ensino superior"],
+        condicoes: ["igual a", "diferente de"],
+        condicoesSemValor: ["está vazio", "não está vazio"]
+      },
+      { 
+        label: "Idade mínima", 
+        value: "idade_minima", 
+        tipo: "número",
+        condicoes: ["igual a", "diferente de", "maior que", "menor que"],
+        condicoesSemValor: ["está vazio", "não está vazio"]
+      },
+      { 
+        label: "Situação da turma", 
+        value: "situacao_turma", 
+        tipo: "combobox",
+        valores: ["em análise", "liberada", "bloqueada", "concluída"],
+        condicoes: ["igual a", "diferente de"],
+        condicoesSemValor: ["está vazio", "não está vazio"]
+      },
+      { 
+        label: "Início da inscrição", 
+        value: "inicio_inscricao", 
+        tipo: "data",
+        condicoes: ["igual a", "anterior a", "posterior a"],
+        condicoesSemValor: ["está vazio"]
+      },
+      { 
+        label: "Final da inscrição", 
+        value: "final_inscricao", 
+        tipo: "data",
+        condicoes: ["igual a", "anterior a", "posterior a"],
+        condicoesSemValor: ["está vazio"]
+      },
+      { 
+        label: "Data de início", 
+        value: "data_inicio", 
+        tipo: "data",
+        condicoes: ["igual a", "anterior a", "posterior a"],
+        condicoesSemValor: ["está vazio"]
+      },
+      { 
+        label: "Data de término", 
+        value: "data_termino", 
+        tipo: "data",
+        condicoes: ["igual a", "anterior a", "posterior a"],
+        condicoesSemValor: ["está vazio"]
+      },
+      { 
+        label: "Quantidade de matrículas", 
+        value: "qtd_matriculas", 
+        tipo: "número",
+        condicoes: ["igual a", "maior que", "menor que"],
+        condicoesSemValor: ["está vazio", "não está vazio"]
+      }
+    ]
+  };
+
+  const camposFixos = {
+    "Aluno": ["Matrícula", "Data Crítica", "Situação da Crítica"],
+    "Turma": ["Nome da Turma", "Data Crítica", "Situação da Crítica"]
+  };
+
+  function atualizarCamposExibir() {
+    const entidade = document.getElementById("entidade-alvo").value;
+    const container = document.getElementById("campos-exibir");
+    
+    if (!entidade) {
+      container.innerHTML = '<div class="empty-state">Selecione uma entidade alvo primeiro</div>';
+      return;
+    }
+    
+    container.innerHTML = "";
+    container.className = "d-flex flex-wrap gap-3";
+
+    camposFixos[entidade].forEach(campo => {
+      const div = document.createElement("div");
+      div.className = "form-check";
+      div.innerHTML = `
+        <input class="form-check-input" type="checkbox" disabled checked>
+        <label class="form-check-label">${campo}</label>
+      `;
+      container.appendChild(div);
+    });
+
+    camposPorEntidade[entidade].forEach(({ label, value }) => {
+      const div = document.createElement("div");
+      div.className = "form-check";
+      div.innerHTML = `
+        <input class="form-check-input" type="checkbox" name="camposAdicionais" value="${value}">
+        <label class="form-check-label">${label}</label>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  let grupoId = 1;
+
+  function addGrupo() {
+    const container = document.getElementById("grupos-container");
+    const emptyState = document.getElementById("empty-grupos");
+    
+    // Remove o empty state se existir
+    if (emptyState) {
+      emptyState.remove();
+    }
+    
+    // Mostra o operador global se for o primeiro grupo
+    if (grupoId === 1) {
+      document.getElementById("operador-global-container").style.display = "block";
+    }
+
+    const grupo = document.createElement("div");
+    grupo.className = "grupo";
+    grupo.setAttribute("data-id", grupoId);
+
+    const grupoHeader = document.createElement("div");
+    grupoHeader.className = "grupo-header";
+    grupoHeader.innerHTML = `
+      <span class="grupo-titulo">Grupo ${grupoId}</span>
+      <button class="btn-remove" type="button" onclick="removerGrupo(this)">
+        <i class="fas fa-trash-alt"></i> Remover Grupo
+      </button>
+    `;
+    grupo.appendChild(grupoHeader);
+
+    const regrasContainer = document.createElement("div");
+    regrasContainer.className = "regras";
+    grupo.appendChild(regrasContainer);
+
+    const operacao = document.createElement("div");
+    operacao.className = "mb-3";
+    operacao.innerHTML = `
+      <label class="form-label d-inline-block me-2">Operador entre condições:</label>
+      <select class="form-select w-auto d-inline-block operador-grupo">
+        <option value="AND">E</option>
+        <option value="OR">OU</option>
+      </select>
+      <button class="btn btn-outline-success btn-sm btn-icon ms-3" type="button" onclick="addCondicao(this)">
+        <i class="fas fa-plus"></i> Adicionar Condição
+      </button>
+    `;
+    grupo.appendChild(operacao);
+
+    container.appendChild(grupo);
+    grupoId++;
+    addCondicao(operacao.querySelector("button"));
+  }
+
+  function removerGrupo(button) {
+    const grupo = button.closest(".grupo");
+    grupo.remove();
+    
+    // Atualizar números dos grupos restantes
+    const grupos = document.querySelectorAll(".grupo");
+    
+    if (grupos.length === 0) {
+      // Se não houver mais grupos, mostra o empty state e esconde o operador global
+      const container = document.getElementById("grupos-container");
+      container.innerHTML = '<div class="empty-state" id="empty-grupos">Adicione seu primeiro grupo de condições</div>';
+      document.getElementById("operador-global-container").style.display = "none";
+    } else {
+      // Atualiza os títulos dos grupos restantes
+      grupos.forEach((grupo, index) => {
+        grupo.querySelector(".grupo-titulo").textContent = `Grupo ${index + 1}`;
+      });
+    }
+    
+    grupoId = grupos.length + 1;
+  }
+
+  function addCondicao(button) {
+    const grupo = button.closest(".grupo");
+    const regrasContainer = grupo.querySelector(".regras");
+    const regra = document.createElement("div");
+    regra.className = "regra";
+
+    regra.innerHTML = `
+      <div class="combobox-container">
+        <label class="combobox-label">Tipo</label>
+        <select class="form-select entidade">
+          <option value="Aluno">Aluno</option>
+          <option value="Turma">Turma</option>
+        </select>
+      </div>
+      <div class="combobox-container">
+        <label class="combobox-label">Campo</label>
+        <select class="form-select campo"></select>
+      </div>
+      <div class="combobox-container">
+        <label class="combobox-label">Condição</label>
+        <select class="form-select operador"></select>
+      </div>
+      <div class="valor-container">
+        <label class="combobox-label">Valor</label>
+        <input class="form-control valor" type="text">
+      </div>
+      <button class="btn btn-danger btn-sm" type="button" onclick="this.parentElement.remove()">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+
+    const entidadeSelect = regra.querySelector(".entidade");
+    const campoSelect = regra.querySelector(".campo");
+    const operadorSelect = regra.querySelector(".operador");
+    const valorContainer = regra.querySelector(".valor-container");
+    const valorInput = regra.querySelector(".valor");
+
+    entidadeSelect.addEventListener("change", () => atualizarCamposCondicao(entidadeSelect, campoSelect, operadorSelect, valorContainer));
+    campoSelect.addEventListener("change", () => atualizarOperadoresCondicao(campoSelect, operadorSelect, valorContainer, entidadeSelect.value));
+    operadorSelect.addEventListener("change", () => atualizarValorCondicao(operadorSelect, valorContainer));
+
+    // Inicializar os campos
+    atualizarCamposCondicao(entidadeSelect, campoSelect, operadorSelect, valorContainer);
+    regrasContainer.appendChild(regra);
+  }
+
+  function atualizarCamposCondicao(entidadeSelect, campoSelect, operadorSelect, valorContainer) {
+    const entidade = entidadeSelect.value;
+    const campos = camposPorEntidade[entidade] || [];
+    
+    campoSelect.innerHTML = campos.map(c => `<option value="${c.value}">${c.label}</option>`).join('');
+    
+    // Atualizar operadores e valor baseado no primeiro campo
+    if (campos.length > 0) {
+      atualizarOperadoresCondicao(campoSelect, operadorSelect, valorContainer, entidade);
+    }
+  }
+
+  function atualizarOperadoresCondicao(campoSelect, operadorSelect, valorContainer, entidade) {
+    const campoValue = campoSelect.value;
+    const campos = camposPorEntidade[entidade] || [];
+    const campo = campos.find(c => c.value === campoValue);
+    
+    if (campo) {
+      // Limpar e preencher operadores
+      operadorSelect.innerHTML = '';
+      
+      // Adicionar condições normais
+      campo.condicoes.forEach(op => {
+        operadorSelect.innerHTML += `<option value="${op}">${op}</option>`;
+      });
+      
+      // Adicionar condições sem valor
+      campo.condicoesSemValor.forEach(op => {
+        operadorSelect.innerHTML += `<option value="${op}">${op}</option>`;
+      });
+      
+      // Atualizar o campo de valor
+      atualizarValorCondicao(operadorSelect, valorContainer);
+    }
+  }
+
+  function atualizarValorCondicao(operadorSelect, valorContainer) {
+    const operador = operadorSelect.value;
+    const campoSelect = operadorSelect.closest('.regra').querySelector('.campo');
+    const entidadeSelect = operadorSelect.closest('.regra').querySelector('.entidade');
+    const entidade = entidadeSelect.value;
+    const campoValue = campoSelect.value;
+    const campos = camposPorEntidade[entidade] || [];
+    const campo = campos.find(c => c.value === campoValue);
+    
+    // Verificar se é uma condição sem valor
+    const isCondicaoSemValor = campo.condicoesSemValor.includes(operador);
+    
+    // Limpar o container de valor
+    valorContainer.innerHTML = `
+      <label class="combobox-label">Valor</label>
+    `;
+    
+    if (isCondicaoSemValor) {
+      // Se for condição sem valor, desabilitar o input
+      valorContainer.innerHTML += `<input class="form-control valor" type="text" disabled>`;
+    } else {
+      // Verificar o tipo do campo para criar o input apropriado
+      if (campo.tipo === "combobox") {
+        // Criar select para combobox
+        valorContainer.innerHTML += `<select class="form-select valor">`;
+        campo.valores.forEach(valor => {
+          valorContainer.querySelector('.valor').innerHTML += `<option value="${valor}">${valor}</option>`;
+        });
+        valorContainer.innerHTML += `</select>`;
+      } else if (campo.tipo === "data") {
+        // Criar input de data
+        valorContainer.innerHTML += `<input class="form-control valor" type="date">`;
+      } else if (campo.tipo === "número") {
+        // Criar input numérico
+        valorContainer.innerHTML += `<input class="form-control valor" type="number">`;
+      } else {
+        // Padrão: input de texto
+        valorContainer.innerHTML += `<input class="form-control valor" type="text">`;
+      }
+    }
+  }
+
+  function gerarPreview() {
+    const grupos = document.querySelectorAll(".grupo");
+    const operadorGlobal = document.getElementById("operador-global").value;
+    const resultado = [];
+
+    grupos.forEach(grupo => {
+      const operadorGrupo = grupo.querySelector(".operador-grupo").value;
+      const regras = grupo.querySelectorAll(".regra");
+      const condicoes = [];
+
+      regras.forEach(regra => {
+        const entidade = regra.querySelector(".entidade").value;
+        const campo = regra.querySelector(".campo").value;
+        const operador = regra.querySelector(".operador").value;
+        const valor = regra.querySelector(".valor").value;
+        
+        const campoObj = camposPorEntidade[entidade].find(c => c.value === campo);
+        const isCondicaoSemValor = campoObj.condicoesSemValor.includes(operador);
+        
+        if (isCondicaoSemValor) {
+          condicoes.push(`${entidade}.${campo} ${operador}`);
+        } else {
+          condicoes.push(`${entidade}.${campo} ${operador} "${valor}"`);
+        }
+      });
+
+      if (condicoes.length) {
+        resultado.push(`( ${condicoes.join(` ${operadorGrupo} `)} )`);
+      }
+    });
+
+    document.getElementById("resultado").textContent = resultado.length ? 
+      resultado.join(` ${operadorGlobal} `) : 
+      "Nenhuma condição adicionada ainda.";
+  }
+
+  // Inicializa o formulário sem selecionar automaticamente
+  window.onload = function() {
+    // Não chama mais atualizarCamposExibir() automaticamente
+    // O empty state já está configurado no HTML
+  };
+</script>
+</body>
+</html>
