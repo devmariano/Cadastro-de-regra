@@ -380,6 +380,26 @@
       margin: 1rem 0;
     }
     
+    .campos-fixos {
+      background-color: #f8f9fa;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .campos-adicionais {
+      background-color: #ffffff;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid #f1f1f2;
+    }
+    
+    .contador-campos {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-bottom: 0.5rem;
+    }
+    
     @media (max-width: 768px) {
       .regra {
         flex-direction: column;
@@ -444,7 +464,7 @@
                 <span class="regra-info">Você pode criar grupos de condições com operadores E/OU entre grupos e dentro de cada grupo</span>
               </h6>
               <div id="grupos-container">
-                <div class="empty-state" id="empty-grupos">Adicione seu primeiro grupo de condições</div>
+                <div class="empty-state" id="empty-grupos">Nenhuma regra criada ainda</div>
               </div>
               <div class="mb-3" id="operador-global-container" style="display: none;">
                 <label class="form-label d-inline-block me-2">Operador entre grupos:</label>
@@ -476,7 +496,7 @@
                 </div>
               </div>
           
-              <div id="resultado" class="preview-container mt-3">Nenhuma condição adicionada ainda.</div>
+              <div id="resultado" class="preview-container mt-3 d-flex">Nenhuma regra criada ainda</div>
             </div>
           </div>
         </form>
@@ -515,7 +535,7 @@
         value: "filiacao", 
         tipo: "texto",
         condicoes: ["igual a", "diferente de", "contém", "não contém"],
-        condicoesSemValor: ["está vazio", "não está vazio", "não válido"]
+        condicoesSemValor: ["está vazio", "não está vazio", "abreviado"]
       },
       { 
         label: "CPF", 
@@ -528,7 +548,7 @@
         label: "Idade", 
         value: "idade", 
         tipo: "número",
-        condicoes: ["igual a", "diferente de", "maior que", "menor que"],
+        condicoes: ["igual a", "diferente de", "maior que", "maior igual", "menor que", "menor igual"],
         condicoesSemValor: ["está vazio", "não está vazio"]
       },
       { 
@@ -540,7 +560,7 @@
         condicoesSemValor: ["está vazio", "não está vazio"]
       },
       { 
-        label: "Matrícula", 
+        label: "Situação Matrícula", 
         value: "matricula", 
         tipo: "combobox",
         valores: ["ativa", "inativa", "concluída", "evadida", "trancada"],
@@ -550,14 +570,7 @@
     ],
     "Turma": [
       { 
-        label: "Nome da turma", 
-        value: "nome_turma", 
-        tipo: "texto",
-        condicoes: ["igual a", "diferente de", "contém", "não contém"],
-        condicoesSemValor: ["está vazio", "não está vazio"]
-      },
-      { 
-        label: "Tipo de curso", 
+        label: "Tipo de Curso", 
         value: "tipo_curso", 
         tipo: "combobox",
         valores: ["formação inicial", "formação continuada", "curso técnico", "graduação"],
@@ -592,7 +605,7 @@
         label: "Idade mínima", 
         value: "idade_minima", 
         tipo: "número",
-        condicoes: ["igual a", "diferente de", "maior que", "menor que"],
+        condicoes: ["igual a", "diferente de", "maior que", "maior igual", "menor que", "menor igual"],
         condicoesSemValor: ["está vazio", "não está vazio"]
       },
       { 
@@ -635,15 +648,23 @@
         label: "Quantidade de matrículas", 
         value: "qtd_matriculas", 
         tipo: "número",
-        condicoes: ["igual a", "maior que", "menor que"],
+        condicoes: ["igual a", "maior que", "maior igual", "menor que", "menor igual"],
         condicoesSemValor: ["está vazio", "não está vazio"]
       }
     ]
   };
 
+  // Campos fixos e opcionais separados
   const camposFixos = {
     "Aluno": ["Matrícula", "Data Crítica", "Situação da Crítica"],
     "Turma": ["Nome da Turma", "Data Crítica", "Situação da Crítica"]
+  };
+
+  const camposOpcionais = {
+    "Aluno": ["Nome do aluno", "Filiação", "CPF", "Idade", "Escolaridade", "Situação Matrícula"],
+    "Turma": ["Tipo de Curso", "Modalidade", "Estratégia", "Escolaridade mínima", "Idade mínima", 
+              "Situação da turma", "Início da inscrição", "Final da inscrição", "Data de início", 
+              "Data de término", "Quantidade de matrículas"]
   };
 
   function atualizarCamposExibir() {
@@ -657,6 +678,40 @@
     
     container.innerHTML = "";
     container.className = "d-flex flex-wrap gap-3";
+    
+    // // Criar seção de campos fixos
+    // const fixosDiv = document.createElement("div");
+    // fixosDiv.className = "campos-fixos mb-3";
+    // fixosDiv.innerHTML = '<h6 class="mb-2">Campos fixos (obrigatórios)</h6>';
+    
+    // camposFixos[entidade].forEach(campo => {
+    //   const div = document.createElement("div");
+    //   div.className = "form-check";
+    //   div.innerHTML = `
+    //     <input class="form-check-input" type="checkbox" disabled checked>
+    //     <label class="form-check-label">${campo}</label>
+    //   `;
+    //   fixosDiv.appendChild(div);
+    // });
+    
+    // container.appendChild(fixosDiv);
+    
+
+    // Criar seção de campos opcionais
+   const opcionaisDiv = document.createElement("div");
+   opcionaisDiv.className = "campos-adicionais"; 
+ 
+    
+    camposOpcionais[entidade].forEach(campo => {
+      const div = document.createElement("div");
+      div.className = "form-check";
+      div.innerHTML = `
+        <input class="form-check-input campo-adicional" type="checkbox" name="camposAdicionais" 
+               value="${campo.toLowerCase().replace(/ /g, '_')}" onchange="validarSelecaoCampos(this)">
+        <label class="form-check-label">${campo}</label>
+      `;
+      opcionaisDiv.appendChild(div);
+    });
 
     camposFixos[entidade].forEach(campo => {
       const div = document.createElement("div");
@@ -665,18 +720,25 @@
         <input class="form-check-input" type="checkbox" disabled checked>
         <label class="form-check-label">${campo}</label>
       `;
-      container.appendChild(div);
+      opcionaisDiv.appendChild(div);
     });
+    
+    container.appendChild(opcionaisDiv);
 
-    camposPorEntidade[entidade].forEach(({ label, value }) => {
-      const div = document.createElement("div");
-      div.className = "form-check";
-      div.innerHTML = `
-        <input class="form-check-input" type="checkbox" name="camposAdicionais" value="${value}">
-        <label class="form-check-label">${label}</label>
-      `;
-      container.appendChild(div);
-    });
+
+    
+  }
+
+  function validarSelecaoCampos(checkbox) {
+    const checkboxes = document.querySelectorAll('.campo-adicional:checked');
+    if (checkboxes.length > 4) {
+      checkbox.checked = false;
+      alert('Você só pode selecionar até 4 campos adicionais');
+    }
+    
+    // Atualizar contador
+    const contador = document.querySelector('.contador-campos');
+    // contador.textContent = `Selecionados: ${checkboxes.length} de 4 campos adicionais`;
   }
 
   let grupoId = 1;
@@ -742,7 +804,7 @@
     if (grupos.length === 0) {
       // Se não houver mais grupos, mostra o empty state e esconde o operador global
       const container = document.getElementById("grupos-container");
-      container.innerHTML = '<div class="empty-state" id="empty-grupos">Adicione seu primeiro grupo de condições</div>';
+      container.innerHTML = '<div class="empty-state" id="empty-grupos">Nenhuma regra criada ainda</div>';
       document.getElementById("operador-global-container").style.display = "none";
     } else {
       // Atualiza os títulos dos grupos restantes
@@ -911,7 +973,7 @@
 
     document.getElementById("resultado").textContent = resultado.length ? 
       resultado.join(` ${operadorGlobal} `) : 
-      "Nenhuma condição adicionada ainda.";
+      "Nenhuma regra adicionada ainda.";
   }
 
   // Inicializa o formulário sem selecionar automaticamente
